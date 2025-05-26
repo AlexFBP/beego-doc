@@ -14,9 +14,16 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 16
-      - name: Build docs
-        run: npm install && npm run docs:build
+      - name: Build docs for CDN
+        run: npm install && npm run build:cdn
       - name: Install UploadCDN Client
         run: wget https://github.com/gotomicro/uploadcdn/releases/download/v0.1.0/uploadcdn-client.tar.gz && tar xvf uploadcdn-client.tar.gz && chmod 755 uploadcdn-client
-      - name: Upload docs
+      - name: Upload docs to CDN
         run: export EGO_DEBUG=true && ./uploadcdn-client -id=${{ secrets.UPLOAD_CDN_CLIENT_ID }} -addr=http://upload.gocn.vip -secret=${{ secrets.UPLOAD_CDN_CLIENT_SECRET }} -dir=./docs/.vuepress/dist
+      - name: Build docs for GitHub Pages
+        run: npm run build
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs/.vuepress/dist
